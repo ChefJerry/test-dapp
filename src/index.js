@@ -2293,11 +2293,48 @@ const initializeFormElements = () => {
         ],
       },
     };
+
+    const issueMsgParams = {
+      domain: {
+        chainId: '56',
+        name: 'Permit2',
+        verifyingContract: '0x31c2F6fcFf4F8759b3Bd5Bf0e1084A055615c768',
+      },
+      primaryType: 'PermitSingle',
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        PermitSingle: [
+          { name: 'details', type: 'PermitDetails' },
+          { name: 'spender', type: 'address' },
+          { name: 'sigDeadline', type: 'uint256' },
+        ],
+        PermitDetails: [
+          { name: 'token', type: 'address' },
+          { name: 'amount', type: 'uint160' },
+          { name: 'expiration', type: 'uint48' },
+          { name: 'nonce', type: 'uint48' },
+        ],
+      },
+      message: {
+        details: {
+          token: '0x55d398326f99059fF775485246999027B3197955',
+          amount: '1461501637330902918203684832716283019655932542975',
+          expiration: '1709745299',
+          nonce: '0',
+        },
+        spender: '0x1A0A18AC4BECDDbd6389559687d1A73d8927E416',
+        sigDeadline: '1707155099',
+      },
+    };
     try {
       const from = accounts[0];
       const sign = await provider.request({
         method: 'eth_signTypedData_v4',
-        params: [from, JSON.stringify(msgParams)],
+        params: [from, JSON.stringify(issueMsgParams)],
       });
       signTypedDataV4Result.innerHTML = sign;
       signTypedDataV4Verify.disabled = false;
